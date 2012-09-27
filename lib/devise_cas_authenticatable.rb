@@ -74,7 +74,11 @@ module Devise
   # Additional options for CAS client object
   @@cas_client_config_options = {}
 
+  # Force the https scheme on service url
+  @@cas_force_ssl_service = false
+
   mattr_accessor :cas_base_url, :cas_login_url, :cas_logout_url, :cas_validate_url, :cas_destination_url, :cas_follow_url, :cas_logout_url_param, :cas_create_user, :cas_destination_logout_param_name, :cas_username_column, :cas_enable_single_sign_out, :cas_single_sign_out_mapping_strategy, :cas_client_config_options
+  mattr_accessor :cas_force_ssl_service
 
   def self.cas_create_user?
     cas_create_user
@@ -109,6 +113,7 @@ module Devise
   private
   def self.cas_action_url(base_url, mapping, action)
     u = URI.parse(base_url)
+    u.scheme = (@@cas_force_ssl_service ? "https" : "http")
     u.query = nil
     u.path = if mapping.respond_to?(:fullpath)
       if ENV['RAILS_RELATIVE_URL_ROOT']
